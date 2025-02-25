@@ -319,16 +319,17 @@ DWORD InjectionEntryPoint(DWORD processID)
 		"\x48\x89\xD9"                                      // mov rcx, rbx (this)
 		"\x48\xB8\x11\x11\x11\x11\x11\x11\x11\x11"          // mov rax, Hooked_GetAccumulatedMouseDeltasAndResetAccumulators
 		"\xFF\xD0"                                          // call rax
-		"\xF3\x0F\x10\x44\x24\x30"                          // movss xmm0, [rsp + 0x30] (mouse X)
-		"\xF3\x0F\x10\x4C\x24\x48"                          // movss xmm1, [rsp + 0x48] (mouse Y)
+		"\xF3\x0F\x10\x07"                                  // movss xmm0, [rdi] (mouse X)
+		"\xF3\x0F\x10\x4F\x14"                              // movss xmm1, [rdi + 0x14] (mouse Y)
 		"\x4C\x89\xFC"                                      // mov rsp, r15
 		"\x41\x5F\x41\x5B\x41\x5A\x41\x59\x41\x58"          // pop r15, r11, r10, r9, r8
 		"\x5A\x59"                                          // pop rdx, rcx
 		"\x90\x90\x90\x90\x90\x90\x90\x90\x90";             // NOPs to pad to 89 bytes
 
 	*(void**)(patch + 41) = Hooked_GetAccumulatedMouseDeltasAndResetAccumulators;
+
 	char GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original[89]{};
-	auto GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove = (void*)FindPattern("client.dll", "F3 0F 10 57 0C F3 0F 10 5F 10");
+	auto GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove = (void*)FindPattern("client.dll", "F3 0F 10 57 ? F3 0F 10 5F ?");
 	DWORD GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_protect;
 	VirtualProtect(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, sizeof(patch) - 1, PAGE_EXECUTE_READWRITE, &GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_protect);
 	memcpy(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original, GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, sizeof(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original));
