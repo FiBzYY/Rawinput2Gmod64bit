@@ -1,0 +1,12 @@
+﻿  detours.cpp
+  disasm.cpp
+  modules.cpp
+  main.cpp
+C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\RawInput2\main.cpp(182,23): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\RawInput2\main.cpp(184,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\RawInput2\main.cpp(185,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\RawInput2\main.cpp(232,16): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\RawInput2\main.cpp(233,16): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\RawInput2\main.cpp(1082,105): warning C4312: 'type cast': conversion from 'DWORD' to 'LPVOID' of greater size
+  Generating Code...
+  RawInput2.vcxproj -> C:\Users\jwolf\OneDrive\Desktop\RawInput2BunnyhopAPE-3.0-rc1\x64\Debug\RawInput2BunnyhopAPE.exe
