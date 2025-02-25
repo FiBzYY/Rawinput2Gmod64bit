@@ -267,9 +267,9 @@ DWORD InjectionEntryPoint(DWORD processID)
 	Also the call to GetAccumulatedMouseDeltasAndResetAccumulators that matters is inlined inside of CInput::MouseMove() so that's annoying....
 
 	*/
-	//oGetAccumulatedMouseDeltasAndResetAccumulators = (GetAccumulatedMouseDeltasAndResetAccumulatorsFn)(FindPattern("client.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B 05 ? ? ? ? 48 8B D9 48 8D 0D"));
+	oGetAccumulatedMouseDeltasAndResetAccumulators = (GetAccumulatedMouseDeltasAndResetAccumulatorsFn)(FindPattern("client.dll", "48 89 5C 24 ? 48 89 74 24 ? 57 48 83 EC 20 48 8B 05 ? ? ? ? 48 8B D9 48 8D 0D"));
 	// actually the instruction is a MOV here 😇
-	//m_rawinput_cvar = (int*)((uintptr_t)AddrFromLea((uintptr_t)oGetAccumulatedMouseDeltasAndResetAccumulators + 35) + 0x30); // x30 x20?
+	m_rawinput_cvar = (int*)((uintptr_t)AddrFromLea((uintptr_t)oGetAccumulatedMouseDeltasAndResetAccumulators + 35) + 0x30); // x30 x20?
 	// TODO: This is AWFUL!!!! Will probably break one day... just use Safetyhook inline/mid-function hooks when that happens and hope for the best lol...
 	/*
 		Thunk:
@@ -326,25 +326,25 @@ DWORD InjectionEntryPoint(DWORD processID)
 		"\x5A\x59"                                          // pop rdx, rcx
 		"\x90\x90\x90\x90\x90\x90\x90\x90\x90";             // NOPs to pad to 89 bytes
 
-	//*(void**)(patch + 41) = Hooked_GetAccumulatedMouseDeltasAndResetAccumulators;
-	//char GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original[89]{};
-	///auto GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove = (void*)FindPattern("client.dll", "F3 0F 10 57 0C F3 0F 10 5F 10");
-	//DWORD GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_protect;
-	//VirtualProtect(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, sizeof(patch) - 1, PAGE_EXECUTE_READWRITE, &GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_protect);
-	//memcpy(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original, GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, sizeof(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original));
-	//memcpy(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, patch, sizeof(patch) - 1);
+	*(void**)(patch + 41) = Hooked_GetAccumulatedMouseDeltasAndResetAccumulators;
+	char GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original[89]{};
+	auto GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove = (void*)FindPattern("client.dll", "F3 0F 10 57 0C F3 0F 10 5F 10");
+	DWORD GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_protect;
+	VirtualProtect(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, sizeof(patch) - 1, PAGE_EXECUTE_READWRITE, &GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_protect);
+	memcpy(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original, GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, sizeof(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove_original));
+	memcpy(GetAccumulatedMouseDeltasAndResetAccumulators_inside_MouseMove, patch, sizeof(patch) - 1);
 	/*
 	In client.dll:
 	Find CInput::JoyStickMove() by searching for the FLOAT (f32!!!) 14000.0.
 	Go to function that calls JoyStickMove() and bam you're inside CInput::ControllerMove()!
 	*/
-	//oControllerMove = (ControllerMoveFn)(FindPattern("client.dll", "48 89 5C 24 ? 57 48 83 EC 30 80 B9 ? ? ? ? 00 49 8B F8 0F 29 74 24"));
+	oControllerMove = (ControllerMoveFn)(FindPattern("client.dll", "48 89 5C 24 ? 57 48 83 EC 30 80 B9 ? ? ? ? 00 49 8B F8 0F 29 74 24"));
 	/*
 	- Find CInput vtable with CInput::ActivateMouse() via winapi SystemParametersInfoA.
 	- Go up 2 functions in the table to find CInput::IN_SetSampleTime()
 	*/
 	//oIn_SetSampleTime = (In_SetSampleTimeFn)(FindPattern("client.dll", "cc f3 0f 11 49 ? c3 cc") + 1);
-	//oIn_SetSampleTime = (In_SetSampleTimeFn)(FindPattern("client.dll", "f3 0f 11 49 20 c3"));
+	oIn_SetSampleTime = (In_SetSampleTimeFn)(FindPattern("client.dll", "f3 0f 11 49 20 c3"));
 
 	uintptr_t tier = (uintptr_t)GetModuleHandleA("tier0.dll");
 	ConMsg = (ConMsgFn)(uintptr_t)GetProcAddress((HMODULE)tier, "?ConMsg@@YAXPEBDZZ");
@@ -356,9 +356,9 @@ DWORD InjectionEntryPoint(DWORD processID)
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach(&(PVOID&)oWindowProc, Hooked_WindowProc);
 	DetourAttach(&(PVOID&)oGetRawMouseAccumulators, Hooked_GetRawMouseAccumulators);
-//	DetourAttach(&(PVOID&)oGetAccumulatedMouseDeltasAndResetAccumulators, Hooked_GetAccumulatedMouseDeltasAndResetAccumulators);
-//	DetourAttach(&(PVOID&)oControllerMove, Hooked_ControllerMove);
-//	DetourAttach(&(PVOID&)oIn_SetSampleTime, Hooked_IN_SetSampleTime);
+	DetourAttach(&(PVOID&)oGetAccumulatedMouseDeltasAndResetAccumulators, Hooked_GetAccumulatedMouseDeltasAndResetAccumulators);
+	DetourAttach(&(PVOID&)oControllerMove, Hooked_ControllerMove);
+	DetourAttach(&(PVOID&)oIn_SetSampleTime, Hooked_IN_SetSampleTime);
 
 	DetourTransactionCommit();
 	//LoadLibraryA("C:\\code\\StrafeAnalyzer\\Release\\strafe analyzer.dll");
